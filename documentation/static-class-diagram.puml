@@ -1,0 +1,21 @@
+@startuml
+skinparam linetype ortho
+skinparam class {
+    FontStyle italic
+}
+
+class User {
+    - id: int
+    - name: string
+    - email: string
+    + getId(): int
+    + getName(): string
+    + getEmail(): string
+}
+
+class Person {
+
+}
+
+Person *--* User
+@enduml
