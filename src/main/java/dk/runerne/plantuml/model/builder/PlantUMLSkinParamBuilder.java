@@ -10,7 +10,7 @@ public class PlantUMLSkinParamBuilder {
     private PlantUMLColor backgroundColor = Defaults.DEFAULT_BACKGROUND_COLOR;
     private PlantUMLColor borderColor = Defaults.DEFAULT_BORDER_COLOR;
 
-    public static PlantUMLSkinParamBuilder newPlantUMLSkinParam() {
+    public static PlantUMLSkinParamBuilder newInstance() {
         return new PlantUMLSkinParamBuilder();
     }
 
@@ -29,6 +29,9 @@ public class PlantUMLSkinParamBuilder {
         skinParam.setBackgroundColor(backgroundColor);
         skinParam.setBorderColor(borderColor);
         return skinParam;
+    }
+
+    private PlantUMLSkinParamBuilder() {
     }
 
 }
