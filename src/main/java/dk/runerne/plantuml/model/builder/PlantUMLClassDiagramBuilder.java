@@ -4,7 +4,11 @@ import dk.runerne.plantuml.model.PlantUMLClassDiagram;
 import dk.runerne.plantuml.model.implemantation.PlantUMLClassDiagramImpl;
 import dk.runerne.plantuml.model.implemantation.PlantUMLSkinParamImpl;
 import dk.runerne.plantuml.model.skinparameters.PlantUMLSkinParam;
+import dk.runerne.plantuml.model.type.PlantUMLClass;
+import dk.runerne.plantuml.model.type.PlantUMLEnum;
+import dk.runerne.plantuml.model.type.PlantUMLInterface;
 import dk.runerne.plantuml.model.type.PlantUMLType;
+import dk.runerne.plantuml.model.relation.PlantUMLRelation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +17,7 @@ public class PlantUMLClassDiagramBuilder {
 
     private PlantUMLSkinParam skinParam = new PlantUMLSkinParamImpl();
     private final List<PlantUMLType> types = new ArrayList<>();
+    private final List<PlantUMLRelation> relations = new ArrayList<>();
 
     public static PlantUMLClassDiagramBuilder newPlantUMLClassDiagram() {
         return new PlantUMLClassDiagramBuilder();
@@ -28,8 +33,18 @@ public class PlantUMLClassDiagramBuilder {
         return this;
     }
 
+    public PlantUMLClassDiagramBuilder type(PlantUMLEnum type) {
+        types.add(type);
+        return this;
+    }
+
     public PlantUMLClassDiagramBuilder type(PlantUMLInterfaceBuilder builder) {
         types.add(builder.build());
+        return this;
+    }
+
+    public PlantUMLClassDiagramBuilder type(PlantUMLInterface type) {
+        types.add(type);
         return this;
     }
 
@@ -38,8 +53,18 @@ public class PlantUMLClassDiagramBuilder {
         return this;
     }
 
+    public PlantUMLClassDiagramBuilder type(PlantUMLClass type) {
+        types.add(type);
+        return this;
+    }
+
+    public PlantUMLClassDiagramBuilder relation(PlantUMLRelationBuilder builder) {
+        relations.add(builder.build());
+        return this;
+    }
+
     public PlantUMLClassDiagram build() {
-        return new PlantUMLClassDiagramImpl(skinParam, types);
+        return new PlantUMLClassDiagramImpl(skinParam, types, relations);
     }
 
     private PlantUMLClassDiagramBuilder() {

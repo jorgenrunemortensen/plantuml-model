@@ -1,9 +1,16 @@
 package dk.runerne.plantuml.model
 
+import dk.runerne.plantuml.model.builder.PlantUMLAggregationBuilder
+import dk.runerne.plantuml.model.builder.PlantUMLAssociationBuilder
 import dk.runerne.plantuml.model.builder.PlantUMLClassBuilder
 import dk.runerne.plantuml.model.builder.PlantUMLClassDiagramBuilder
+import dk.runerne.plantuml.model.builder.PlantUMLCompositionBuilder
 import dk.runerne.plantuml.model.builder.PlantUMLConstructorBuilder
+import dk.runerne.plantuml.model.builder.PlantUMLCustomRelationBuilder
+import dk.runerne.plantuml.model.builder.PlantUMLDependencyBuilder
 import dk.runerne.plantuml.model.builder.PlantUMLEnumBuilder
+import dk.runerne.plantuml.model.builder.PlantUMLImplementationBuilder
+import dk.runerne.plantuml.model.builder.PlantUMLInheritanceBuilder
 import dk.runerne.plantuml.model.builder.PlantUMLInterfaceBuilder
 import dk.runerne.plantuml.model.builder.PlantUMLMethodBuilder
 import dk.runerne.plantuml.model.builder.PlantUMLParameterBuilder
@@ -12,29 +19,29 @@ import dk.runerne.plantuml.model.builder.PlantUMLSkinParamBuilder
 import dk.runerne.plantuml.model.color.HTMLColor
 import dk.runerne.plantuml.model.color.PlantUMLColor
 import dk.runerne.plantuml.model.skinparameters.Defaults
+
+import dk.runerne.plantuml.model.type.PlantUMLType
+import groovy.transform.CompileDynamic
 import spock.lang.Specification
 
 import java.nio.file.Files
 import java.nio.file.Path
 
-import static dk.runerne.plantuml.model.type.AccessModifier.PACKAGE_PRIVATE
 import static dk.runerne.plantuml.model.type.AccessModifier.PRIVATE
-import static dk.runerne.plantuml.model.type.AccessModifier.PROTECTED
-import static dk.runerne.plantuml.model.type.AccessModifier.PUBLIC
 
+@CompileDynamic
 class PlantUMLWriterSpec extends Specification {
 
     void "Undefined skinparam"() {
         given:
-        PlantUMLWriter writer = new PlantUMLWriter()
         PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
                 .newPlantUMLClassDiagram()
                 .build();
         StringWriter stringWriter = new StringWriter()
-        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(new PrintWriter(stringWriter))
 
         when:
-        writer.write(diagram, printWriter)
+        plantUMLWriter.write(diagram)
         saveToFile('Undefined-skinparam.puml', stringWriter)
 
         then:
@@ -47,7 +54,6 @@ class PlantUMLWriterSpec extends Specification {
 
     void "Default background color"() {
         given:
-        PlantUMLWriter writer = new PlantUMLWriter()
         PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
                 .newPlantUMLClassDiagram()
                 .skinParam(
@@ -56,10 +62,10 @@ class PlantUMLWriterSpec extends Specification {
                 )
                 .build();
         StringWriter stringWriter = new StringWriter()
-        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(new PrintWriter(stringWriter))
 
         when:
-        writer.write(diagram, printWriter)
+        plantUMLWriter.write(diagram)
         saveToFile('Default-background-color.puml', stringWriter)
 
         then:
@@ -72,7 +78,6 @@ class PlantUMLWriterSpec extends Specification {
 
     void "Blue background color"() {
         given:
-        PlantUMLWriter writer = new PlantUMLWriter()
         PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
                 .newPlantUMLClassDiagram()
                 .skinParam(
@@ -81,10 +86,10 @@ class PlantUMLWriterSpec extends Specification {
                 )
                 .build()
         StringWriter stringWriter = new StringWriter()
-        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(new PrintWriter(stringWriter))
 
         when:
-        writer.write(diagram, printWriter)
+        plantUMLWriter.write(diagram)
         saveToFile('Blue-background-color.puml', stringWriter)
 
         then:
@@ -99,7 +104,6 @@ skinparam backgroundcolor Blue
 
     void "Default border color"() {
         given:
-        PlantUMLWriter writer = new PlantUMLWriter()
         PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
                 .newPlantUMLClassDiagram()
                 .skinParam(
@@ -108,10 +112,10 @@ skinparam backgroundcolor Blue
                 )
                 .build();
         StringWriter stringWriter = new StringWriter()
-        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(new PrintWriter(stringWriter))
 
         when:
-        writer.write(diagram, printWriter)
+        plantUMLWriter.write(diagram)
         saveToFile('Default-border-color.puml', stringWriter)
 
         then:
@@ -124,7 +128,6 @@ skinparam backgroundcolor Blue
 
     void "Blue border color"() {
         given:
-        PlantUMLWriter writer = new PlantUMLWriter()
         PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
                 .newPlantUMLClassDiagram()
                 .skinParam(
@@ -133,10 +136,10 @@ skinparam backgroundcolor Blue
                 )
                 .build()
         StringWriter stringWriter = new StringWriter()
-        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(new PrintWriter(stringWriter))
 
         when:
-        writer.write(diagram, printWriter)
+        plantUMLWriter.write(diagram)
         saveToFile('Blue-border-color.puml', stringWriter)
 
         then:
@@ -151,7 +154,6 @@ skinparam bordercolor Blue
 
     void "Types with values"() {
         given:
-        PlantUMLWriter writer = new PlantUMLWriter()
         PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
                 .newPlantUMLClassDiagram()
                 .type(
@@ -206,9 +208,10 @@ skinparam bordercolor Blue
                 .build()
         StringWriter stringWriter = new StringWriter()
         PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
 
         when:
-        writer.write(diagram, printWriter)
+        plantUMLWriter.write(diagram)
         saveToFile('Types-with-values.puml', stringWriter)
 
         then:
@@ -244,11 +247,185 @@ class MyClass {
 """)
     }
 
+    void "Types with aggregation"() {
+        given:
+        PlantUMLType classA = PlantUMLClassBuilder.newInstance('ClassA').isPublic().build()
+        PlantUMLType classB = PlantUMLClassBuilder.newInstance('ClassB').isPublic().build()
+        PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
+                .newPlantUMLClassDiagram()
+                .type(classA)
+                .type(classB)
+                .relation(
+                        PlantUMLAggregationBuilder.newInstance(classA, classB)
+                        .length(4)
+                        .fromText("from\nhere")
+                        .toText('to\nnowhere')
+                        .name('MyAggregation\nRelation')
+                )
+                .build()
+
+        StringWriter stringWriter = new StringWriter()
+        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
+
+        when:
+        plantUMLWriter.write(diagram)
+
+        then:
+        saveToFile("Types-with-aggregation-type.puml", stringWriter)
+    }
+
+    void "Types with association"() {
+        given:
+        PlantUMLType classA = PlantUMLClassBuilder.newInstance('ClassA').isPublic().build()
+        PlantUMLType classB = PlantUMLClassBuilder.newInstance('ClassB').isPublic().build()
+        PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
+                .newPlantUMLClassDiagram()
+                .type(classA)
+                .type(classB)
+                .relation(
+                        PlantUMLAssociationBuilder.newInstance(classA, classB)
+                )
+                .build()
+
+        StringWriter stringWriter = new StringWriter()
+        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
+
+        when:
+        plantUMLWriter.write(diagram)
+
+        then:
+        saveToFile("Types-with-association-type.puml", stringWriter)
+    }
+
+    void "Types with composition"() {
+        given:
+        PlantUMLType classA = PlantUMLClassBuilder.newInstance('ClassA').isPublic().build()
+        PlantUMLType classB = PlantUMLClassBuilder.newInstance('ClassB').isPublic().build()
+        PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
+                .newPlantUMLClassDiagram()
+                .type(classA)
+                .type(classB)
+                .relation(
+                        PlantUMLCompositionBuilder.newInstance(classA, classB)
+                )
+                .build()
+
+        StringWriter stringWriter = new StringWriter()
+        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
+
+        when:
+        plantUMLWriter.write(diagram)
+
+        then:
+        saveToFile("Types-with-composition-type.puml", stringWriter)
+    }
+
+    void "Types with dependency"() {
+        given:
+        PlantUMLType classA = PlantUMLClassBuilder.newInstance('ClassA').isPublic().build()
+        PlantUMLType classB = PlantUMLClassBuilder.newInstance('ClassB').isPublic().build()
+        PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
+                .newPlantUMLClassDiagram()
+                .type(classA)
+                .type(classB)
+                .relation(
+                        PlantUMLDependencyBuilder.newInstance(classA, classB)
+                )
+                .build()
+
+        StringWriter stringWriter = new StringWriter()
+        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
+
+        when:
+        plantUMLWriter.write(diagram)
+
+        then:
+        saveToFile("Types-with-dependency-type.puml", stringWriter)
+    }
+
+    void "Types with implementation"() {
+        given:
+        PlantUMLType classA = PlantUMLClassBuilder.newInstance('ClassA').isPublic().build()
+        PlantUMLType classB = PlantUMLClassBuilder.newInstance('ClassB').isPublic().build()
+        PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
+                .newPlantUMLClassDiagram()
+                .type(classA)
+                .type(classB)
+                .relation(
+                        PlantUMLImplementationBuilder.newInstance(classA, classB)
+                )
+                .build()
+
+        StringWriter stringWriter = new StringWriter()
+        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
+
+        when:
+        plantUMLWriter.write(diagram)
+
+        then:
+        saveToFile("Types-with-implementation-type.puml", stringWriter)
+    }
+
+    void "Types with inheritance"() {
+        given:
+        PlantUMLType classA = PlantUMLClassBuilder.newInstance('ClassA').isPublic().build()
+        PlantUMLType classB = PlantUMLClassBuilder.newInstance('ClassB').isPublic().build()
+        PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
+                .newPlantUMLClassDiagram()
+                .type(classA)
+                .type(classB)
+                .relation(
+                        PlantUMLInheritanceBuilder.newInstance(classA, classB)
+                )
+                .build()
+
+        StringWriter stringWriter = new StringWriter()
+        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
+
+        when:
+        plantUMLWriter.write(diagram)
+
+        then:
+        saveToFile("Types-with-inheritance-type.puml", stringWriter)
+    }
+
+    void "Types with custom relation"() {
+        given:
+        PlantUMLType classA = PlantUMLClassBuilder.newInstance('ClassA').isPublic().build()
+        PlantUMLType classB = PlantUMLClassBuilder.newInstance('ClassB').isPublic().build()
+        PlantUMLClassDiagram diagram = PlantUMLClassDiagramBuilder
+                .newPlantUMLClassDiagram()
+                .type(classA)
+                .type(classB)
+                .relation(
+                        PlantUMLCustomRelationBuilder.newInstance(classA, classB, (char)'=')
+                        .fromConnector("<|")
+                        .toConnector("|>")
+                )
+                .build()
+
+        StringWriter stringWriter = new StringWriter()
+        PrintWriter printWriter = new PrintWriter(stringWriter)
+        PlantUMLWriter plantUMLWriter = new PlantUMLWriter(printWriter)
+
+        when:
+        plantUMLWriter.write(diagram)
+
+        then:
+        saveToFile("Types-with-custom-relation-type.puml", stringWriter)
+    }
+
     private static String normalizeWhitespace(String input) {
-        input
-                ?.replaceAll(/(?m)^[ \t]*\r?\n/, '')   // fjern tomme linjer
-                ?.replaceAll(/[\r\n]+/, ' ')           // linjeskift → mellemrum
-                ?.replaceAll(/\s+/, ' ')               // gentagne whitespace → ét space
+        return input
+                ?.replaceAll(/(?m)^[ \t]*\r?\n/, '')   // remove empty lines
+                ?.replaceAll(/[\r\n]+/, ' ')           // newlines → one space
+                ?.replaceAll(/\s+/, ' ')               // repeated whitespaces → one space
                 ?.trim()
     }
 
