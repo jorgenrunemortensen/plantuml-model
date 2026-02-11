@@ -19,8 +19,23 @@ public class PlantUMLPropertyBuilder {
         return new PlantUMLPropertyBuilder(name, typeName);
     }
 
-    public PlantUMLPropertyBuilder accessModifier(AccessModifier accessModifier) {
+    public PlantUMLPropertyBuilder setAccessModifier(AccessModifier accessModifier) {
         this.accessModifier = accessModifier;
+        return this;
+    }
+
+    public PlantUMLPropertyBuilder setMutability(Mutability mutability) {
+        this.mutability = mutability;
+        return this;
+    }
+
+    public PlantUMLPropertyBuilder setStaticness(Staticness staticness) {
+        this.staticness = staticness;
+        return this;
+    }
+
+    public PlantUMLPropertyBuilder setAbstractionLevel(AbstractionLevel abstractionLevel) {
+        this.abstractionLevel = abstractionLevel;
         return this;
     }
 

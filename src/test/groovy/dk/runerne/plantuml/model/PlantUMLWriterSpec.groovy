@@ -162,7 +162,7 @@ skinparam bordercolor Blue
                                 .value("ACTIVE")
                                 .value("INACTIVE")
                                 .value("PENDING")
-                                .property(PlantUMLPropertyBuilder.newInstance('codeA', 'int').accessModifier(PRIVATE).isAbstract().isStatic())
+                                .property(PlantUMLPropertyBuilder.newInstance('codeA', 'int').setAccessModifier(PRIVATE).isAbstract().isStatic())
                                 .property(PlantUMLPropertyBuilder.newInstance('codeB', 'int').isPublic().isAbstract())
                                 .property(PlantUMLPropertyBuilder.newInstance('codeC', 'int').isProtected().isFinal())
                                 .property(PlantUMLPropertyBuilder.newInstance('codeD', 'int').isPackagePrivate().isStatic())
